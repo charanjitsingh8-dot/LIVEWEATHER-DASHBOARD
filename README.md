@@ -67,3 +67,5 @@ The Live Weather Dashboard (CLI) is a terminal-based application that creates a 
 ​Data Visualization Add-on: A separate script could read the generated weather_history.csv file using Pandas and plot temperature trends over time using libraries like Matplotlib or Seaborn. 
 
 ​Multi-city Batch Queries: Modifying the CLI input loop to take a list of cities separated by commas, fetching data for all of them concurrently, and appending them to the log as a single batch operation.
+
+#Author Charanjit Developed as part of internship Python programming module.
