@@ -1,0 +1,98 @@
+import os
+import sys
+from datetime import datetime
+import requests
+import pandas as pd
+from dotenv import load_load, load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+CSV_FILE = "weather_history.csv"
+
+def fetch_weather_data(city_name):
+    """Fetches real-time weather data from OpenWeatherMap API."""
+    if not API_KEY:
+        print("❌ Error: API key not found. Please set OPENWEATHER_API_KEY in your .env file.")
+        sys.exit(1)
+        
+    params = {
+        "q": city_name,
+        "appid": API_KEY,
+        "units": "metric"  # Fetches temperature in Celsius
+    }
+    
+    try:
+        response = requests.get(BASE_URL, params=params)
+        if response.status_code == 404:
+            print(f"❌ Error: City '{city_name}' not found. Please check the spelling.")
+            return None
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Network/API Error: {e}")
+        return None
+
+def save_to_history(data):
+    """Parses relevant metrics and appends them to a CSV file using Pandas."""
+    # Extracted fields from JSON response
+    parsed_data = {
+        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "City": data.get("name"),
+        "Country": data.get("sys", {}).get("country"),
+        "Temperature (°C)": data.get("main", {}).get("temp"),
+        "Feels Like (°C)": data.get("main", {}).get("feels_like"),
+        "Humidity (%)": data.get("main", {}).get("humidity"),
+        "Wind Speed (m/s)": data.get("wind", {}).get("speed"),
+        "Condition": data.get("weather", [{}])[0].get("description", "N/A").title()
+    }
+    
+    df = pd.DataFrame([parsed_data])
+    
+    # Append to CSV if it exists, otherwise create a new one with headers
+    if os.path.exists(CSV_FILE):
+        df.to_csv(CSV_FILE, mode='a', header=False, index=False)
+    else:
+        df.to_csv(CSV_FILE, mode='w', header=True, index=False)
+
+def display_dashboard(data):
+    """Displays a clean, formatted CLI layout of the weather data."""
+    city = data.get("name")
+    country = data.get("sys", {}).get("country")
+    temp = data.get("main", {}).get("temp")
+    feels_like = data.get("main", {}).get("feels_like")
+    humidity = data.get("main", {}).get("humidity")
+    wind_speed = data.get("wind", {}).get("speed")
+    desc = data.get("weather", [{}])[0].get("description", "N/A").title()
+    
+    print("\n" + "="*40)
+    print(f" 🌍 WEATHER DASHBOARD: {city}, {country} ")
+    print("="*40)
+    print(f" 🌦️  Condition   : {desc}")
+    print(f" 🌡️  Temperature : {temp}°C (Feels like {feels_like}°C)")
+    print(f" 💧  Humidity    : {humidity}%")
+    print(f" 💨  Wind Speed  : {wind_speed} m/s")
+    print("="*40)
+    print("✅ Local search log successfully updated via Pandas.\n")
+
+def main():
+    print("--- Live Weather CLI Dashboard ---")
+    city = input("Enter a city name: ").strip()
+    
+    if not city:
+        print("❌ City name cannot be empty.")
+        return
+
+    print(f"\nFetching real-time data for '{city}'...")
+    weather_json = fetch_weather_data(city)
+    
+    if weather_json:
+        # Save historical log using Pandas
+        save_to_history(weather_json)
+        # Present details visually to the user
+        display_dashboard(weather_json)
+
+if __name__ == "__main__":
+    main()
