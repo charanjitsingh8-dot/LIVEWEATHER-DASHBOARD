@@ -1,0 +1,60 @@
+import datetime
+import os
+import pandas as pd
+import requests
+
+
+def fetch_weather(city, api_key):
+    # Topic 1: API Integration
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    params = {"q": city, "appid": api_key, "units": "metric"}
+
+    try:
+        response = requests.get(base_url, params=params)
+        if response.status_code == 200:
+            return response.json()  # Returns parsed JSON
+        elif response.status_code == 404:
+            print("❌ City not found. Please check the spelling.")
+        else:
+            print(f"❌ Error: Received status code {response.status_code}")
+    except requests.exceptions.ConnectionError:
+        print("❌ Network error. Please check your internet connection.")
+    return None
+
+
+def process_and_log(data):
+    # Topic 2: JSON Parsing
+    city_name = data["name"]
+    temp = data["main"]["temp"]
+    humidity = data["main"]["humidity"]
+    desc = data["weather"][0]["description"].title()
+    wind = data["wind"]["speed"]
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Topic 4: CLI Formatting
+    print("\n" + "=" * 35)
+    print(f"🌍 WEATHER DASHBOARD: {city_name.upper()} 🌍")
+    print("=" * 35)
+    print(f"Condition:   {desc}")
+    print(f"Temperature: {temp}°C")
+    print(f"Humidity:    {humidity}%")
+    print(f"Wind Speed:  {wind} m/s")
+    print("=" * 35 + "\n")
+
+    # Topic 3: Pandas Storage Pipeline
+    weather_data = {
+        "Timestamp": [timestamp],
+        "City": [city_name],
+        "Temperature_C": [temp],
+        "Humidity_Pct": [humidity],
+        "Condition": [desc],
+        "Wind_Speed_ms": [wind],
+    }
+
+    df = pd.DataFrame(weather_data)
+    file_name = "weather_history.csv"
+
+    # Append to CSV; include headers only if file doesn't exist yet
+    file_exists = os.path.isfile(file_name)
+    df.to_csv(file_name, mode="a", index=False, header=not file_exists)
+    print(f"💾 Logged search data safely to '{file_name}'.")
