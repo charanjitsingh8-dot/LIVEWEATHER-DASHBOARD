@@ -1,71 +1,134 @@
-# LIVEWEATHER-DASHBOARD
-The Live Weather Dashboard (CLI) is a terminal-based application that creates a real-time data pipeline. It uses Python's requests library to fetch current weather data from the OpenWeatherMap public API based on user input.
+LIVE WEATHER DASHBOARD (CLI)
 
-         Introduction
+Introduction
 
-​The Live Weather Dashboard (CLI) is a command-line interface application designed to fetch, process, log, and display real-time weather information for any given city. As outlined in the file 1000231569.jpg, this project integrates core data engineering and software development concepts, including working with public APIs, JSON parsing, data manipulation with Pandas, and file management.
+The Live Weather Dashboard (CLI) is a terminal-based Python application that creates a real-time weather data pipeline. It uses Python's requests library to fetch current weather information from the OpenWeatherMap Public API based on user input.
 
-​By utilizing the OpenWeatherMap public API, the application serves as a practical pipeline that demonstrates how raw, live data from the web can be consumed dynamically and structured into a persistent historical data log (CSV format) for future analytics.
+This project demonstrates essential Python programming and data engineering concepts, including API integration, JSON parsing, data processing with Pandas, file management, and command-line interface (CLI) development. The application not only displays live weather information but also stores every search in a CSV file, creating a historical weather log for future analysis.
 
-      Table of Contents
+---
 
+Table of Contents
 
-•​API Integration & Data Ingestion
+1. API Integration & Data Ingestion
+2. JSON Data Parsing & Extraction
+3. Data Persistence & Pandas Pipeline
+4. Command-Line Interface (CLI) & Output Formatting
+5. Potential Future Enhancements
 
-•​JSON Data Parsing & Extraction
-
-•​Data Persistence & Pandas Pipeline
-
-•​Command-Line Interface (CLI) & Output Formatting
-
+---
 
 1. API Integration & Data Ingestion
 
-​To obtain live, accurate weather data, the application connects to the OpenWeatherMap public API.
+The application connects to the OpenWeatherMap Public API to retrieve real-time weather information.
 
-​The requests Library: Python’s built-in requests library is used to handle HTTP communication. The application sends a GET request to the API endpoint containing the target city name and a unique API developer key (AppID).
+Requests Library
 
-​Network Handling: This component manages API request states, ensuring the application gracefully handles connectivity errors, invalid city queries, or rate limits by checking the HTTP status codes (e.g., 200 OK for success, 404 Not Found for invalid cities).
+Python's requests library is used to send HTTP GET requests to the API endpoint. Each request includes:
 
+- City name entered by the user
+- Unique OpenWeatherMap API Key (AppID)
+- Temperature unit (Celsius)
+
+Network Handling
+
+The application validates HTTP response codes and handles common errors gracefully:
+
+- 200 OK – Weather data retrieved successfully
+- 404 Not Found – Invalid city name
+- Network connection errors
+- Invalid API key or other API-related issues
+
+---
 
 2. JSON Data Parsing & Extraction
 
-​Public web APIs typically respond with data structured in JSON (JavaScript Object Notation) format.
+The API returns weather information in JSON (JavaScript Object Notation) format.
 
-​Payload Structure: The raw API response contains nested structures containing coordinates, weather conditions, main metrics (temperature, pressure, humidity), wind speed, and system data.
-​Extraction Process: The application parses this string response into a Python dictionary. It systematically extracts key-value pairs needed for the user dashboard, such as:
+Data Extraction
 
-•​Temperature (converted from Kelvin to Celsius/Fahrenheit)
+The JSON response is converted into a Python dictionary, and the application extracts important weather details such as:
 
-•​Humidity percentage
+- City Name
+- Temperature (°C)
+- Humidity (%)
+- Weather Description
+- Wind Speed (m/s)
+- Date and Time of Search
 
-•​Weather description (e.g., "Clear sky", "Light rain")
+These values are displayed in a clean and user-friendly format on the terminal.
 
-•​Wind speed and direction
+---
 
-3.Data Persistence & Pandas Pipeline
+3. Data Persistence & Pandas Pipeline
 
-​A key feature of this dashboard is its ability to build a historical archive of all weather searches.
+One of the key features of the application is maintaining a historical record of weather searches.
 
-​Pandas DataFrame Integration: Once the weather variables are extracted, they are structured into a single-row Pandas DataFrame along with a timestamp of the query.
+Pandas DataFrame
 
-​CSV Logging Pipeline: The pipeline checks if a historical log file (weather_history.csv) already exists. If it does, the Pandas pipeline appends the new DataFrame to the existing file without overwriting old data (mode='a'). If it doesn't exist, it creates the file and initializes the column headers.
+The extracted weather information is stored in a Pandas DataFrame together with the current timestamp.
 
+CSV Logging
 
-​4. Command-Line Interface (CLI) & Output Formatting
+The application checks whether weather_history.csv already exists.
 
-​The user interface is designed purely for the terminal, focusing on readability and presentation.
+- If the file exists, the new weather record is appended.
+- If the file does not exist, it is created automatically with column headers.
 
-​User Input: The script prompts the user to input a city name or type a keyword to exit.
+This creates a continuously growing weather history database for future analysis.
 
-​Visual Display: Instead of dumping a raw dictionary, the data is cleanly aligned using text formatting blocks, separators, or third-party tabular libraries (like tabulate) to display clear weather summaries, making it easily readable at a glance.
+---
 
+4. Command-Line Interface (CLI) & Output Formatting
 
-    Potential Future Enhancements
+The project is designed as a simple and interactive command-line application.
 
+User Input
 
-​Data Visualization Add-on: A separate script could read the generated weather_history.csv file using Pandas and plot temperature trends over time using libraries like Matplotlib or Seaborn. 
+The user enters:
 
-​Multi-city Batch Queries: Modifying the CLI input loop to take a list of cities separated by commas, fetching data for all of them concurrently, and appending them to the log as a single batch operation.
+- OpenWeatherMap API Key
+- City Name
 
-#Author Charanjit Developed as part of internship Python programming module.
+Formatted Output
+
+Instead of displaying raw JSON data, the application presents weather information in a clean, organized dashboard showing:
+
+- Weather Condition
+- Temperature
+- Humidity
+- Wind Speed
+
+The formatted output improves readability and provides a better user experience.
+
+---
+
+Potential Future Enhancements
+
+- Add graphical visualization of weather history using Matplotlib.
+- Support batch weather queries for multiple cities.
+- Export weather history to Excel.
+- Display 5-day weather forecasts.
+- Include air quality and UV index information.
+- Build a graphical user interface (GUI) using Tkinter or PyQt.
+- Automate scheduled weather logging using Python scheduling libraries.
+
+---
+
+Technologies Used
+
+- Python 3
+- Requests
+- Pandas
+- OpenWeatherMap API
+- CSV File Handling
+- Datetime Module
+- OS Module
+
+---
+
+Author
+
+Charanjit Singh 
+
+Developed as part of the Python Programming Internship Module.
